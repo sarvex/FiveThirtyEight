@@ -25,7 +25,7 @@ with plt.style.context('https://gist.githubusercontent.com/rhiever/d0a7332fe0bee
         plt.figure()
         plt.hist(weather_data[column].values)
         plt.title(column)
-        plt.savefig('{}.png'.format(column))
+        plt.savefig(f'{column}.png')
 
     # Make sure we're only plotting temperatures for July 2014 - June 2015
     weather_data_subset = weather_data[weather_data['date'] >= datetime(year=2014, month=7, day=1)]
@@ -69,11 +69,16 @@ with plt.style.context('https://gist.githubusercontent.com/rhiever/d0a7332fe0bee
     plt.ylim(-15, 111)
     plt.xlim(-5, 370)
 
-    plt.yticks(range(-10, 111, 10), [r'{}$^\circ$'.format(x)
-                                     for x in range(-10, 111, 10)], fontsize=10)
+    plt.yticks(
+        range(-10, 111, 10),
+        [f'{x}$^\circ$' for x in range(-10, 111, 10)],
+        fontsize=10,
+    )
     plt.ylabel(r'Temperature ($^\circ$F)', fontsize=12)
 
-    month_beginning_df = weather_data_subset[weather_data_subset['date'].apply(lambda x: True if x.day == 1 else False)]
+    month_beginning_df = weather_data_subset[
+        weather_data_subset['date'].apply(lambda x: x.day == 1)
+    ]
     month_beginning_indeces = list(month_beginning_df['day_order'].values)
     month_beginning_names = list(month_beginning_df['date'].apply(lambda x: x.strftime("%B")).values)
     month_beginning_names[0] += '\n\'14'
@@ -96,8 +101,11 @@ with plt.style.context('https://gist.githubusercontent.com/rhiever/d0a7332fe0bee
     plt.grid(False)
 
     ax3 = ax1.twinx()
-    plt.yticks(range(-10, 111, 10), [r'{}$^\circ$'.format(x)
-                                     for x in range(-10, 111, 10)], fontsize=10)
+    plt.yticks(
+        range(-10, 111, 10),
+        [f'{x}$^\circ$' for x in range(-10, 111, 10)],
+        fontsize=10,
+    )
     plt.ylim(-15, 111)
     plt.grid(False)
 

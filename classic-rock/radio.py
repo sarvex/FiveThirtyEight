@@ -12,32 +12,31 @@ def cc_pull(x):
 		url = x[0]
 		callsign = x[2]
 		filename = callsign + str(iteration).rjust(3,'0') + ".txt"
-		record = open(filename,"w")
-		last_song = x[3]
-		response = urllib2.urlopen(url)
-		counter = 0 
-		offset = 0
-		new_last_song = last_song
-		page = response.read()
-		while (counter < 20):
-			offset = page.find('}},{"track":')
-			song = page[page.find('":"')+3:page.find('","')]
-			artist = page[page.find('artistName":"')+13:page.find('","amgArtistId"')]
-			page = page[offset + 3:]
-			song = song.replace("\/","/")		
-			artist = artist.replace("\/","/")
-			counter = counter + 1
-			entry = song + "|" + artist + "|" + callsign + "|" + str(time.time()) + "\n"
-			if (song == last_song):
-				break
-			elif (counter == 1):	
-				new_last_song = song
-				record.write(entry)
-			else:
-				record.write(entry)
-		y = (x[0],iteration,x[2],new_last_song)
-		time.sleep(3)
-		record.close()
+		with open(filename,"w") as record:
+			last_song = x[3]
+			response = urllib2.urlopen(url)
+			counter = 0
+			offset = 0
+			new_last_song = last_song
+			page = response.read()
+			while (counter < 20):
+				offset = page.find('}},{"track":')
+				song = page[page.find('":"')+3:page.find('","')]
+				artist = page[page.find('artistName":"')+13:page.find('","amgArtistId"')]
+				page = page[offset + 3:]
+				song = song.replace("\/","/")
+				artist = artist.replace("\/","/")
+				counter += 1
+				entry = f"{song}|{artist}|{callsign}|{str(time.time())}" + "\n"
+				if (song == last_song):
+					break
+				elif (counter == 1):	
+					new_last_song = song
+					record.write(entry)
+				else:
+					record.write(entry)
+			y = (x[0],iteration,x[2],new_last_song)
+			time.sleep(3)
 		return y
 	except:
 		time.sleep(3)
@@ -45,26 +44,25 @@ def cc_pull(x):
 
 
 def gm_pull(x):
-	try:	
+	try:
 		iteration = x[1] + 1
 		url = x[0]
 		callsign = x[2]
 		filename = callsign + str(iteration).rjust(3,'0') + ".txt"
-		record = open(filename,"w")	
-		last_song = x[3]
-		response = urllib2.urlopen(url)
-		counter = 0 
-		first = True
-		new_last_song = last_song	
-		while (counter < 10000):
-			line = response.readline()
-			if '" -' in line:
-				song = line[line.find('"')+1:line.find(" -")-1]
-				artist = line[line.find("- ")+1:]
-				artist = artist.strip()
-				entry = song + "|" + artist + "|" + callsign + "|" + str(time.time()) + "\n"		
-				record.write(entry)
-				"""
+		with open(filename,"w") as record:
+			last_song = x[3]
+			response = urllib2.urlopen(url)
+			first = True
+			new_last_song = last_song
+			for _ in range(10000):
+				line = response.readline()
+				if '" -' in line:
+					song = line[line.find('"')+1:line.find(" -")-1]
+					artist = line[line.find("- ")+1:]
+					artist = artist.strip()
+					entry = f"{song}|{artist}|{callsign}|{str(time.time())}" + "\n"
+					record.write(entry)
+					"""
 				line = response.readline()
 				line = response.readline()
 				line = response.readline()
@@ -75,45 +73,43 @@ def gm_pull(x):
 					WRITE ITUNES LINKS TO IT
 					THEN, LATER, GRAB ALBUM RELEASE YEARS
 				"""
-			counter = counter + 1
-		y = (x[0],iteration,x[2],new_last_song)
-		record.close()	
+			y = (x[0],iteration,x[2],new_last_song)
 		time.sleep(3)
-		return y		
+		return y
 	except:
 		time.sleep(3)
 		return x
 
 def cx_pull(x):
-	try:	
+	try:
 		iteration = x[1] + 1
 		url = x[0]
 		callsign = x[2]
 		filename = callsign + str(iteration).rjust(3,'0') + ".txt"
-		record = open(filename,"w")	
-		last_song = x[3]
-		response = urllib2.urlopen(url)
-		counter = 0 
-		first = True	
-		new_last_song = last_song
-		while (counter < 10000):
-			line = response.readline()
-			if 'cmPlaylistContent' in line:
-				song = line[line.find('/">')+3:line.find("</a></strong>")]
-				artist = line[line.find("alt=")+5:line.find('" class="')]
-				artist = artist.strip()
-				song = song.replace("&#39;","'")		
-				artist = artist.replace("&#39;","'")			
-				entry = song + "|" + artist + "|" + callsign + "|" + str(time.time()) + "\n"
-				if (song == last_song):
-					break
-				elif first:	
-					new_last_song = song
-					record.write(entry)
-					first = False
-				else:
-					record.write(entry)
-				"""	
+		with open(filename,"w") as record:
+			last_song = x[3]
+			response = urllib2.urlopen(url)
+			counter = 0
+			first = True
+			new_last_song = last_song
+			while (counter < 10000):
+				line = response.readline()
+				if 'cmPlaylistContent' in line:
+					song = line[line.find('/">')+3:line.find("</a></strong>")]
+					artist = line[line.find("alt=")+5:line.find('" class="')]
+					artist = artist.strip()
+					song = song.replace("&#39;","'")
+					artist = artist.replace("&#39;","'")
+					entry = f"{song}|{artist}|{callsign}|{str(time.time())}" + "\n"
+					if (song == last_song):
+						break
+					elif first:	
+						new_last_song = song
+						record.write(entry)
+						first = False
+					else:
+						record.write(entry)
+					"""	
 				if "Download Song:" in line:
 					line = response.readline()
 					line = response.readline()
@@ -122,10 +118,9 @@ def cx_pull(x):
 						TO DO: CREATE FILE
 						WRITE ITUNES LINKS TO IT
 						THEN, LATER, GRAB ALBUM RELEASE YEARS
-				"""		
-			counter = counter + 1
-		y = (x[0],iteration,x[2],new_last_song)
-		record.close()	
+				"""
+				counter += 1
+			y = (x[0],iteration,x[2],new_last_song)
 		time.sleep(3)
 		return y
 	except:
@@ -138,32 +133,29 @@ def cb_pull(x):
 		url = x[0]
 		callsign = x[2]
 		filename = callsign + str(iteration).rjust(3,'0') + ".txt"
-		record = open(filename,"w")	
-		last_song = x[3]
-		response = urllib2.urlopen(url)
-		counter = 0 
-		first = True	
-		new_last_song = last_song	
-		while (counter < 10000):
-			line = response.readline()
-			if '<div class="track_title"' in line:
-				song = line[line.find('rel=')+5:line.find('">')]
+		with open(filename,"w") as record:
+			last_song = x[3]
+			response = urllib2.urlopen(url)
+			first = True
+			new_last_song = last_song
+			for _ in range(10000):
 				line = response.readline()
-				line = response.readline()
-				artist = line[line.find('rel=')+5:line.find('">')]
-				line = response.readline()
-				line = response.readline()
-				album = line[line.find('rel=')+5:line.find('">')]
-				song = song.replace("&#039;","'")		
-				artist = artist.replace("&#039;","'")
-				album = album.replace("&#039;","'")						
-				entry = song + "|" + artist + "|" + callsign + "|" + str(time.time()) + "\n"
-				record.write(entry)
-			counter = counter + 1	
-		y = (x[0],iteration,x[2],new_last_song)
-		time.sleep(3)
-		record.close()	
-		return y	
+				if '<div class="track_title"' in line:
+					song = line[line.find('rel=')+5:line.find('">')]
+					line = response.readline()
+					line = response.readline()
+					artist = line[line.find('rel=')+5:line.find('">')]
+					line = response.readline()
+					line = response.readline()
+					album = line[line.find('rel=')+5:line.find('">')]
+					song = song.replace("&#039;","'")
+					artist = artist.replace("&#039;","'")
+					album = album.replace("&#039;","'")
+					entry = f"{song}|{artist}|{callsign}|{str(time.time())}" + "\n"
+					record.write(entry)
+			y = (x[0],iteration,x[2],new_last_song)
+			time.sleep(3)
+		return y
 	except:
 		time.sleep(3)
 		return x
@@ -175,39 +167,38 @@ def tg_pull(x):
 		url = x[0]
 		callsign = x[2]
 		filename = callsign + str(iteration).rjust(3,'0') + ".txt"
-		record = open(filename,"w")	
-		last_song = x[3]
-		response = urllib2.urlopen(url)
-		counter = 0 
-		first = True
-		new_last_song = last_song		
-		while (counter < 10000):
-			line = response.readline()
-			if '<div class="song"><' in line:
-				counter = counter + 1
-			elif '<div class="song">' in line:
-				song = line[line.find('"song">')+7:line.find('</div>')]
-				song = song.replace("&#39;","'")
+		with open(filename,"w") as record:
+			last_song = x[3]
+			response = urllib2.urlopen(url)
+			counter = 0
+			first = True
+			new_last_song = last_song
+			while (counter < 10000):
 				line = response.readline()
-				artist = line[line.find('<div>')+5:line.find(' <span')]
-				song = song.replace("&#39;","'")		
-				artist = artist.replace("&#39;","'")
-				song = song.replace("&amp;","&")		
-				artist = artist.replace("&amp;","&")			
-				entry = song + "|" + artist + "|" + callsign + "|" + str(time.time()) + "\n"
-				if (song == last_song):
-					break
-				elif first:	
-					new_last_song = song
-					record.write(entry)
-					first = False
-				else:
-					record.write(entry)
-			counter = counter + 1	
-		y = (x[0],iteration,x[2],new_last_song)
-		time.sleep(3)
-		record.close()	
-		return y		
+				if '<div class="song"><' in line:
+					counter += 1
+				elif '<div class="song">' in line:
+					song = line[line.find('"song">')+7:line.find('</div>')]
+					song = song.replace("&#39;","'")
+					line = response.readline()
+					artist = line[line.find('<div>')+5:line.find(' <span')]
+					song = song.replace("&#39;","'")
+					artist = artist.replace("&#39;","'")
+					song = song.replace("&amp;","&")
+					artist = artist.replace("&amp;","&")
+					entry = f"{song}|{artist}|{callsign}|{str(time.time())}" + "\n"
+					if (song == last_song):
+						break
+					elif first:	
+						new_last_song = song
+						record.write(entry)
+						first = False
+					else:
+						record.write(entry)
+				counter += 1
+			y = (x[0],iteration,x[2],new_last_song)
+			time.sleep(3)
+		return y
 	except:
 		time.sleep(3)
 		return x
@@ -218,29 +209,26 @@ def ll_pull(x):
 		url = x[0]
 		callsign = x[2]
 		filename = callsign + str(iteration).rjust(3,'0') + ".txt"
-		record = open(filename,"w")	
-		last_song = x[3]
-		response = urllib2.urlopen(url)
-		counter = 0 
-		new_last_song = last_song	
-		while (counter < 10000):
-			line = response.readline()
-			if 'var songs = ' in line:
-				tencount = 0
-				while (tencount < 10):
-					song = line[line.find('"title":"')+9:line.find('","')]
-					line = line[line.find('"artist":')+10:]
-					artist = line[:line.find('"')]
-					line = line[line.find('},{"timestamp":'):]
-					entry = song + "|" + artist + "|" + callsign + "|" + str(time.time()) + "\n"
-					new_last_song = song
-					record.write(entry)	
-					tencount = tencount + 1					
-				break	
-			counter = counter + 1	
-		y = (x[0],iteration,x[2],new_last_song)
-		time.sleep(3)
-		record.close()	
+		with open(filename,"w") as record:
+			last_song = x[3]
+			response = urllib2.urlopen(url)
+			counter = 0
+			new_last_song = last_song
+			while (counter < 10000):
+				line = response.readline()
+				if 'var songs = ' in line:
+					for _ in range(10):
+						song = line[line.find('"title":"')+9:line.find('","')]
+						line = line[line.find('"artist":')+10:]
+						artist = line[:line.find('"')]
+						line = line[line.find('},{"timestamp":'):]
+						entry = f"{song}|{artist}|{callsign}|{str(time.time())}" + "\n"
+						new_last_song = song
+						record.write(entry)
+					break
+				counter += 1
+			y = (x[0],iteration,x[2],new_last_song)
+			time.sleep(3)
 		return y
 	except:
 		time.sleep(3)
@@ -253,32 +241,31 @@ def kx_pull(x):
 		url = x[0]
 		callsign = x[2]
 		filename = callsign + str(iteration).rjust(3,'0') + ".txt"
-		record = open(filename,"w")	
-		last_song = x[3]
-		response = urllib2.urlopen(url)
-		counter = 0 
-		first = True	
-		new_last_song = last_song
-		while (counter < 10000):
-			line = response.readline()
-			if 'play-song' in line:
-				song = line[line.find('>')+1:line.find("</")]
+		with open(filename,"w") as record:
+			last_song = x[3]
+			response = urllib2.urlopen(url)
+			counter = 0
+			first = True
+			new_last_song = last_song
+			while (counter < 10000):
 				line = response.readline()
-				artist = line[line.find('by ')+3:line.find('</')]
-				entry = song + "|" + artist + "|" + callsign + "|" + str(time.time()) + "\n"
-				if (song == last_song):
-					break
-				elif first:	
-					new_last_song = song
-					record.write(entry)
-					first = False
-				else:
-					record.write(entry)
-			counter = counter + 1	
-		y = (x[0],iteration,x[2],new_last_song)
-		time.sleep(3)
-		record.close()	
-		return y	
+				if 'play-song' in line:
+					song = line[line.find('>')+1:line.find("</")]
+					line = response.readline()
+					artist = line[line.find('by ')+3:line.find('</')]
+					entry = f"{song}|{artist}|{callsign}|{str(time.time())}" + "\n"
+					if (song == last_song):
+						break
+					elif first:	
+						new_last_song = song
+						record.write(entry)
+						first = False
+					else:
+						record.write(entry)
+				counter += 1
+			y = (x[0],iteration,x[2],new_last_song)
+			time.sleep(3)
+		return y
 	except:
 		time.sleep(3)
 		return x
@@ -289,34 +276,33 @@ def ke_pull(x):
 		url = x[0]
 		callsign = x[2]
 		filename = callsign + str(iteration).rjust(3,'0') + ".txt"
-		record = open(filename,"w")	
-		last_song = x[3]
-		response = urllib2.urlopen(url)
-		counter = 0 
-		first = True
-		new_last_song = last_song		
-		while (counter < 10000):
-			line = response.readline()
-			if 'views-field-field-title' in line:
-				song = line[line.find('field-content">')+15:line.find("</div>")]
+		with open(filename,"w") as record:
+			last_song = x[3]
+			response = urllib2.urlopen(url)
+			counter = 0
+			first = True
+			new_last_song = last_song
+			while (counter < 10000):
 				line = response.readline()
-				artist = line[line.find('<span>')+6:line.find('</span>')]
-				song = song.replace("&#039;","'")		
-				artist = artist.replace("&#039;","'")
-				entry = song + "|" + artist + "|" + callsign + "|" + str(time.time()) + "\n"
-				if (song == last_song):
-					break
-				elif first:	
-					new_last_song = song
-					record.write(entry)
-					first = False
-				else:
-					record.write(entry)
-			counter = counter + 1
-		y = (x[0],iteration,x[2],new_last_song)
-		record.close()	
+				if 'views-field-field-title' in line:
+					song = line[line.find('field-content">')+15:line.find("</div>")]
+					line = response.readline()
+					artist = line[line.find('<span>')+6:line.find('</span>')]
+					song = song.replace("&#039;","'")
+					artist = artist.replace("&#039;","'")
+					entry = f"{song}|{artist}|{callsign}|{str(time.time())}" + "\n"
+					if (song == last_song):
+						break
+					elif first:	
+						new_last_song = song
+						record.write(entry)
+						first = False
+					else:
+						record.write(entry)
+				counter += 1
+			y = (x[0],iteration,x[2],new_last_song)
 		time.sleep(3)
-		return y	
+		return y
 	except:
 		time.sleep(3)
 		return x

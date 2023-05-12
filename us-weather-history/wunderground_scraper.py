@@ -37,9 +37,7 @@ def scrape_station(station):
                                                  current_date.day)
         html = urlopen(formatted_lookup_URL).read().decode('utf-8')
 
-        out_file_name = '{}/{}-{}-{}.html'.format(station, current_date.year,
-                                                  current_date.month,
-                                                  current_date.day)
+        out_file_name = f'{station}/{current_date.year}-{current_date.month}-{current_date.day}.html'
 
         with open(out_file_name, 'w') as out_file:
             out_file.write(html)

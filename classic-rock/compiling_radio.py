@@ -1,50 +1,44 @@
 def hr_pull(x,y):
 	iteration = 0
 	callsign = x[2]
-	new_filename = callsign + ".txt"
+	new_filename = f"{callsign}.txt"
 	songlist = ""
 	while (iteration < y):
-		iteration = iteration + 1
+		iteration += 1
 		filename = callsign + str(iteration).rjust(3,'0') + ".txt"
-		readfile = open(filename,"r")
-		newchunk = readfile.read()
-		songlist = newchunk + "\n" + songlist
-		readfile.close()
-	writefile = open(new_filename,"w")
-	writefile.write(songlist)
-	writefile.close()
+		with open(filename,"r") as readfile:
+			newchunk = readfile.read()
+			songlist = newchunk + "\n" + songlist
+	with open(new_filename,"w") as writefile:
+		writefile.write(songlist)
 		
 def hh_pull(x,y):
 	iteration = 0
 	callsign = x[2]
-	new_filename = callsign + ".txt"
+	new_filename = f"{callsign}.txt"
 	songlist = ""
 	while (iteration < y):
-		iteration = iteration + 1
+		iteration += 1
 		filename = callsign + str(iteration).rjust(3,'0') + ".txt"
-		readfile = open(filename,"r")
-		newchunk = readfile.read()
-		songlist = newchunk + "\n" + songlist
-		readfile.close()
-	writefile = open(new_filename,"w")
-	writefile.write(songlist)
-	writefile.close()	
+		with open(filename,"r") as readfile:
+			newchunk = readfile.read()
+			songlist = newchunk + "\n" + songlist
+	with open(new_filename,"w") as writefile:
+		writefile.write(songlist)	
 
 def dy_pull(x,y):
 	iteration = 0
-	callsign = x[2]	
-	new_filename = callsign + ".txt"
+	callsign = x[2]
+	new_filename = f"{callsign}.txt"
 	songlist = ""
 	while (iteration < y):
-		iteration = iteration + 1
+		iteration += 1
 		filename = callsign + str(iteration).rjust(3,'0') + ".txt"
-		readfile = open(filename,"r")
-		newchunk = readfile.read()
-		songlist = newchunk + "\n" + songlist
-		readfile.close()
-	writefile = open(new_filename,"w")
-	writefile.write(songlist)
-	writefile.close()
+		with open(filename,"r") as readfile:
+			newchunk = readfile.read()
+			songlist = newchunk + "\n" + songlist
+	with open(new_filename,"w") as writefile:
+		writefile.write(songlist)
 	
 	
 cc1 = ("http://www.q1043.com/services/now_playing.html?streamId=1465&limit=25",0,"WAXQ","")

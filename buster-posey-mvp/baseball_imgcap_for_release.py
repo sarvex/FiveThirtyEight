@@ -21,7 +21,7 @@ def piccap(i, w=300, h=300):
     dataBitMap.CreateCompatibleBitmap(dcObj, w, h)
     cDC.SelectObject(dataBitMap)
     cDC.BitBlt((0, 0), (w, h), dcObj, (800, 300), win32con.SRCCOPY)
-    dataBitMap.SaveBitmapFile(cDC, "./" + str(i) + "img.png")
+    dataBitMap.SaveBitmapFile(cDC, f"./{str(i)}img.png")
     win32gui.DeleteObject(dataBitMap.GetHandle())
     dcObj.DeleteDC()
     cDC.DeleteDC()

@@ -17,7 +17,7 @@ def parse_station(station):
     current_date = datetime(year=2014, month=7, day=1)
     end_date = datetime(year=2015, month=7, day=1)
 
-    with open('{}.csv'.format(station), 'w') as out_file:
+    with open(f'{station}.csv', 'w') as out_file:
         out_file.write('date,actual_mean_temp,actual_min_temp,actual_max_temp,'
                        'average_min_temp,average_max_temp,'
                        'record_min_temp,record_max_temp,'
@@ -27,10 +27,7 @@ def parse_station(station):
 
         while current_date != end_date:
             try_again = False
-            with open('{}/{}-{}-{}.html'.format(station,
-                                                current_date.year,
-                                                current_date.month,
-                                                current_date.day)) as in_file:
+            with open(f'{station}/{current_date.year}-{current_date.month}-{current_date.day}.html') as in_file:
                 soup = BeautifulSoup(in_file.read(), 'html.parser')
 
                 weather_data = soup.find(id='historyTable').find_all('span', class_='wx-value')
@@ -63,7 +60,7 @@ def parse_station(station):
                             float(average_precipitation) > float(record_precipitation)):
                         raise Exception
 
-                    out_file.write('{}-{}-{},'.format(current_date.year, current_date.month, current_date.day))
+                    out_file.write(f'{current_date.year}-{current_date.month}-{current_date.day},')
                     out_file.write(','.join([actual_mean_temp, actual_min_temp, actual_max_temp,
                                              average_min_temp, average_max_temp,
                                              record_min_temp, record_max_temp,
@@ -85,7 +82,7 @@ def parse_station(station):
             # which case the parser will get stuck. You can manually put in the data
             # yourself in that case, or just tell the parser to skip this day.
             if try_again:
-                print('Error with date {}'.format(current_date))
+                print(f'Error with date {current_date}')
 
                 lookup_URL = 'http://www.wunderground.com/history/airport/{}/{}/{}/{}/DailyHistory.html'
                 formatted_lookup_URL = lookup_URL.format(station,
@@ -94,10 +91,7 @@ def parse_station(station):
                                                          current_date.day)
                 html = urlopen(formatted_lookup_URL).read().decode('utf-8')
 
-                out_file_name = '{}/{}-{}-{}.html'.format(station,
-                                                          current_date.year,
-                                                          current_date.month,
-                                                          current_date.day)
+                out_file_name = f'{station}/{current_date.year}-{current_date.month}-{current_date.day}.html'
 
                 with open(out_file_name, 'w') as out_file:
                     out_file.write(html)

@@ -38,25 +38,25 @@ fert = np.matrix(((2.1, 2.3, 2.3, 2.1, 2.5, 2.1, 2, 1.9, 3.4, 2.8, 2.1, 1.7)))
 # Create data frame for printing later
 religionDataFrame = pd.DataFrame()
 
-for x in range(0,100):
-    ### beginning of conversion step
-        
-    # apply transition matrix to current distribution
-    current = current * trans
-    
-    ### beginning of fertility step
-    # divide by two for couple number
-    current = current/2
-    
-    # adjust by fertility
-    current = np.multiply(fert, current)
-    
-    # normalize to 100%
-    current = current / np.sum(current)
-    write_row(current)
-    
-    # add to data frame
-    religionDataFrame = religionDataFrame.append(pd.DataFrame(current), ignore_index=True)
+for _ in range(0,100):
+  ### beginning of conversion step
+
+  # apply transition matrix to current distribution
+  current = current * trans
+
+  ### beginning of fertility step
+  # divide by two for couple number
+  current = current/2
+
+  # adjust by fertility
+  current = np.multiply(fert, current)
+
+  # normalize to 100%
+  current = current / np.sum(current)
+  write_row(current)
+
+  # add to data frame
+  religionDataFrame = religionDataFrame.append(pd.DataFrame(current), ignore_index=True)
 
 csv.close()
 religionDataFrame.columns = religions

@@ -26,17 +26,16 @@ max_N = 15      # exclusive
 # returns a dict mapping each n-gram that appears in the corpus to its frequency in the corpus
 def ngram_freqs(corpus, n):
     
-    # generate a list of all n-grams in the corpus
-    ngrams = []
-    for i in range(n, len(corpus)):
-        if not "<BR>" in tuple(corpus[i-n:i]):
-            ngrams += [tuple(corpus[i-n:i])]
-    
+    ngrams = [
+        tuple(corpus[i - n : i])
+        for i in range(n, len(corpus))
+        if "<BR>" not in tuple(corpus[i - n : i])
+    ]
     # count the frequency of each n-gram
     freq_dict = defaultdict(int)
     for ngram in ngrams:
         freq_dict[ngram] += 1
-    
+
     return freq_dict
 
 # combines two dicts by performing the provided operation on their values
@@ -72,86 +71,66 @@ def corpus_list_from_file(filename):
     
     # load all words from the file into memory
     words = open(filename).read().split()
-    
-    # initialize the list of corpora
-    corpus_list = []
-    for candidate in candidates:
-        corpus_list += [[]]
-    
+
+    corpus_list = [[] for _ in candidates]
     # iterate through words, putting them in the correct corpus
     speaker_index = -1
-    
+
     for word in words:
         
         # change of speaker
         if word[-1] == ":" and word.isupper():
             # name of the new speaker
             speaker = word[:-1]
-            
+
             # speaker is one of the candidates
-            if speaker in candidates:
-                speaker_index = candidates.index(speaker)
-            
-            # speaker is moderator or candidate not listed
-            else:
-                speaker_index = -1
-            
+            speaker_index = candidates.index(speaker) if speaker in candidates else -1
             # add a speaking break indicator
             corpus_list[speaker_index] += ["<BR>"]
-        
-        # regular word
+
         elif word[0] is not "(" and word[-1] is not ")":
             
             # remove punctuation and convert to lowercase
             word = word.translate(string.maketrans("",""), string.punctuation).lower()
-            
-            if speaker_index >= 0:
-                if word is not "":
-                    corpus_list[speaker_index] += [word]
-    
+
+            if speaker_index >= 0 and word is not "":
+                corpus_list[speaker_index] += [word]
+
     return corpus_list
 
 # returns a list of dicts, each mapping an n-gram to its frequency in the respective corpus
 def freq_dicts_from_corpus_list(corpus_list):
     
-    # initialize the list of dicts
-    freq_dicts = []
-    for candidate in range(len(candidates)):
-        freq_dicts += [defaultdict(int)]
-    
+    freq_dicts = [defaultdict(int) for _ in range(len(candidates))]
     # iteratively add all n-grams
     for n in range(min_N, max_N):
         for candidate in range(len(candidates)):
             corpus = corpus_list[candidate]
             dict_to_add = ngram_freqs(corpus, n)
             freq_dicts[candidate] = combine_dicts(freq_dicts[candidate], dict_to_add)
-    
+
     return freq_dicts
 
 # returns a list of dicts, each mapping an n-gram to its tf-idf in the respective corpus
 # see https://en.wikipedia.org/wiki/Tf-idf for further information
 def tfidf_dicts_from_freq_dicts(freq_dicts):
     
-    # initialize the list of dicts
-    tfidf_dicts = []
-    for candidate in range(len(candidates)):
-        tfidf_dicts += [defaultdict(int)]
-    
+    tfidf_dicts = [defaultdict(int) for _ in range(len(candidates))]
     # create a dict that maps an n-gram to the number of corpora containing that n-gram
     num_containing = defaultdict(int)
     for candidate in range(len(candidates)):
         for ngram in freq_dicts[candidate]:
             num_containing[ngram] += 1
-    
+
     # calculate tf-idf for each n-gram in each corpus
     for candidate in range(len(candidates)):
         for ngram in freq_dicts[candidate]:
             tf = freq_dicts[candidate][ngram]
             idf = math.log(len(candidates) / num_containing[ngram])
-            
+
             # normalize by length of n-gram
             tfidf_dicts[candidate][ngram] = tf * idf * len(ngram)
-            
+
             # kill anything ending in "and" "or" "of" "with"
             if ngram[-1] in ["and", "or", "of", "with"]:
                 tfidf_dicts[candidate][ngram] = 0
